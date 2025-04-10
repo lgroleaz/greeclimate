@@ -38,6 +38,7 @@ class Props(enum.Enum):
     SWING_HORIZ = "SwingLfRig"
     SWING_VERT = "SwUpDn"
     QUIET = "Quiet"
+    BUZZER = "Buzzer_ON_OFF"
     TURBO = "Tur"
     STEADY_HEAT = "StHt"
     POWER_SAVE = "SvSt"
@@ -169,9 +170,9 @@ class Device(DeviceProtocol2, Taskable):
         Taskable.__init__(self, loop)
         self._logger = logging.getLogger(__name__)
         self.device_info: DeviceInfo = device_info
-        
+
         self._bind_timeout = bind_timeout
-        
+
         """ Device properties """
         self.hid = None
         self.version = None
@@ -361,7 +362,7 @@ class Device(DeviceProtocol2, Taskable):
         if not self._properties:
             self._properties = {}
 
-        if self._properties.get(name.value) == value:
+        if name != Props.BUZZER and self._properties.get(name.value) == value:
             return
         else:
             self._properties[name.value] = value
@@ -517,6 +518,14 @@ class Device(DeviceProtocol2, Taskable):
     @quiet.setter
     def quiet(self, value: bool):
         self.set_property(Props.QUIET, 2 if value else 0)
+
+    @property
+    def buzzer(self) -> bool:
+        return self.get_property(Props.BUZZER)
+
+    @buzzer.setter
+    def buzzer(self, value: bool):
+        self.set_property(Props.BUZZER, int(value))
 
     @property
     def turbo(self) -> bool:
